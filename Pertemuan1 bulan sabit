@@ -1,0 +1,211 @@
+function main(){
+    var Canvas = document.getElementById("mycanvas");
+
+    Canvas.width = window.innerWidth;
+    Canvas.height = window.innerHeight;
+
+    var GL;
+    try{
+        GL = Canvas.getContext("webgl",{antialias: false});
+    }catch(error){
+        alert("WebGL context cannot be initializes");
+    };
+
+    // var triangle_vertex = [
+    //     -1,-1, //index 0
+    //     0,0,1,
+    //     1,-1, //index 1
+    //     0,1,0,
+    //     1,1, // index 2
+    //     1,0,0
+    // ];
+
+    // var square_vertex = [
+    //     -0.5,0.5,
+    //     0,0,0,
+    //     -0.5,-0.5,
+    //     1,0,0,
+    //     0.5,-0.5,
+    //     0,1,0,
+    //     0.5,0.5,
+    //     0,0,1
+    // ];
+
+    //SHADERS
+    var shader_vertex_source= `
+    attribute vec2 position;
+    attribute vec3 color;
+
+    varying vec3 vColor;
+    void main(void){
+        gl_Position = vec4(position,0.0,1.0);
+        vColor = color;
+    }
+    `;
+
+    var shader_fragment_source = `
+    precision mediump float;
+
+    varying vec3 vColor;
+
+    void main(void){
+        gl_FragColor = vec4(vColor,1.0);
+    }
+    `;
+
+    var compile_shader = function(source, type, typeString){
+        var shader = GL.createShader(type);
+        GL.shaderSource(shader,source);
+        GL.compileShader(shader);
+        if (!GL.getShaderParameter(shader, GL.COMPILE_STATUS)){
+            alert("ERROR IN " + typeString + " SHADER: " +
+            GL.getShaderInfoLog((shader)));
+            return false;
+        }
+        return shader;
+    };
+
+    var shader_vertex = compile_shader(shader_vertex_source, GL.VERTEX_SHADER, "VERTEX");
+    var shader_fragment = compile_shader(shader_fragment_source, GL.FRAGMENT_SHADER, "FRAGMENT");
+
+    var SHADER_PROGRAM = GL.createProgram();
+    GL.attachShader(SHADER_PROGRAM,shader_vertex);
+    GL.attachShader(SHADER_PROGRAM,shader_fragment);
+
+    GL.linkProgram(SHADER_PROGRAM);
+
+    var _color = GL.getAttribLocation(SHADER_PROGRAM,"color");
+    var _position = GL.getAttribLocation(SHADER_PROGRAM,"position");
+
+    GL.enableVertexAttribArray(_color);
+    GL.enableVertexAttribArray(_position);
+
+    GL.useProgram(SHADER_PROGRAM);
+
+    //TRIANGLE
+    // var TRIANGLE_VERTEX = GL.createBuffer();
+    // GL.bindBuffer(GL.ARRAY_BUFFER,TRIANGLE_VERTEX);
+    // GL.bufferData(GL.ARRAY_BUFFER,new Float32Array(triangle_vertex),GL.STATIC_DRAW);
+
+    //SQUARE
+    // var SQUARE_VERTEX = GL.createBuffer();
+    // GL.bindBuffer(GL.ARRAY_BUFFER,SQUARE_VERTEX);
+    // GL.bufferData(GL.ARRAY_BUFFER,new Float32Array(square_vertex),GL.STATIC_DRAW);
+
+    // CIRCLE 1
+    var circle1_vertex = [];
+    var numSegments = 360;
+
+    for (let k = 0; k < numSegments; k++) {
+      const angle = (k / numSegments) * 2 * Math.PI;
+      const x = Math.cos(angle);
+      const y = Math.sin(angle);
+      circle1_vertex.push(x, y, 0.0); 
+      circle1_vertex.push(1,1,0); 
+    }
+
+    var CIRCLE1_VERTEX = GL.createBuffer();
+    GL.bindBuffer(GL.ARRAY_BUFFER, CIRCLE1_VERTEX);
+    GL.bufferData(
+      GL.ARRAY_BUFFER,
+      new Float32Array(circle1_vertex),
+      GL.STATIC_DRAW
+    );
+
+    // CIRCLE 2
+    var circle2_vertex = [];
+    const offsetX = 0.5; 
+
+    for (let k = 0; k < numSegments; k++) {
+      const angle = (k / numSegments) * 2 * Math.PI;
+      const x = offsetX + Math.cos(angle); 
+      const y = Math.sin(angle);
+      circle2_vertex.push(x, y, 0.0); 
+      circle2_vertex.push(1.0, 1.0, 1.0);
+    }
+
+    var CIRCLE2_VERTEX = GL.createBuffer();
+    GL.bindBuffer(GL.ARRAY_BUFFER, CIRCLE2_VERTEX);
+    GL.bufferData(
+      GL.ARRAY_BUFFER,
+      new Float32Array(circle2_vertex),
+      GL.STATIC_DRAW
+    );
+
+    //FACES
+    //TRIANGLE FACES
+    // var triangle_faces = [0,1,2];
+    // var TRIANGLE_FACES = GL.createBuffer();
+    // GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER,TRIANGLE_FACES);
+    // GL.bufferData(GL.ELEMENT_ARRAY_BUFFER,new Uint16Array(triangle_faces),GL.STATIC_DRAW);
+
+    //SQUARE FACES
+    // var square_faces = [0,1,2,3];
+    // var SQUARE_FACES = GL.createBuffer();
+    // GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER,SQUARE_FACES);
+    // GL.bufferData(GL.ELEMENT_ARRAY_BUFFER,new Uint16Array(square_faces),GL.STATIC_DRAW);
+
+    //DRAW
+    GL.clearColor(0.0, 0.0, 0.0, 0.0);
+    var animate = function(){
+        GL.viewport(0,0,Canvas.width,Canvas.height);
+        GL.clear(GL.COLOR_BUFFER_BIT);
+
+        //TRIANGLE DRAW
+        // GL.bindBuffer(GL.ARRAY_BUFFER,TRIANGLE_VERTEX);
+
+        // GL.vertexAttribPointer(_position,2,GL.FLOAT,false,(2+3)*4,0);
+        // GL.vertexAttribPointer(_color,3,GL.FLOAT,false,(2+3)*4,2*4);
+
+        // GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER,TRIANGLE_FACES);
+        // GL.drawElements(GL.TRIANGLES,triangle_faces.length,GL.UNSIGNED_SHORT,0);
+
+        //SQUARE DRAW
+        // GL.bindBuffer(GL.ARRAY_BUFFER,SQUARE_VERTEX);
+
+        // GL.vertexAttribPointer(_position, 2, GL.FLOAT, false, (2 + 3) * 4, 0);
+        // GL.vertexAttribPointer(_color, 3, GL.FLOAT, false, (2 + 3) * 4, 2 * 4);
+
+        // GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER,SQUARE_FACES);
+        // GL.drawElements(GL.TRIANGLE_FAN,square_faces.length,GL.UNSIGNED_SHORT,0);
+
+        // CIRCLE DRAW
+    
+        GL.bindBuffer(GL.ARRAY_BUFFER, CIRCLE1_VERTEX);
+
+        GL.vertexAttribPointer(_position, 3, GL.FLOAT, false, (3 + 3) * 4, 0); // 6
+        GL.vertexAttribPointer(
+            _color,
+            3,
+            GL.FLOAT,
+            false,
+            (3 + 3) * 4,
+            3 * 4
+        ); 
+
+        GL.drawArrays(GL.TRIANGLE_FAN, 0, circle1_vertex.length / 6);
+
+
+        // CIRCLE 2 DRAW
+
+        GL.bindBuffer(GL.ARRAY_BUFFER, CIRCLE2_VERTEX);
+
+        GL.vertexAttribPointer(_position, 3, GL.FLOAT, false, (3 + 3) * 4, 0);
+        GL.vertexAttribPointer(
+            _color,
+            3,
+            GL.FLOAT,
+            false,
+            (3 + 3) * 4,
+            3 * 4
+        );
+
+        GL.drawArrays(GL.TRIANGLE_FAN, 0, circle2_vertex.length / 6);
+
+        GL.flush();
+        window.requestAnimationFrame(animate);
+    };
+
+    animate();
+}
+window.addEventListener('load',main);
