@@ -94,19 +94,50 @@ GL.useProgram(SHADER_PROGRAM);
                         1,1, //index ke 2
                         1,0,0
                     ];*/
-                    var triangle_vertex = [
-                        -1,-1,-1,   0,0,0, //position color
-                        1,-1,-1,    1,0,0,
-                        1,1,-1,     1,1,0,
-                        -1,1,-1,     0,1,0,
+                    // var triangle_vertex = [
+                    //     -1,-1,-1,   0,0,0, //position color
+                    //     1,-1,-1,    1,0,0,
+                    //     1,1,-1,     1,1,0,
+                    //     -1,1,-1,     0,1,0,
 
 
-                        -1,-1,1,    0,0,1,
-                        1,-1,1,     1,0,1,
-                        1,1,1,      1,1,1,
-                        -1,1,1,     0,1,1
+                    //     -1,-1,1,    0,0,1,
+                    //     1,-1,1,     1,0,1,
+                    //     1,1,1,      1,1,1,
+                    //     -1,1,1,     0,1,1
                        
-                    ]; 
+                    // ]; 
+                    var triangle_vertex = [
+                        -1, -1, -1,     1, 1, 0,
+                        1, -1, -1,     1, 1, 0,
+                        1,  1, -1,     1, 1, 0,
+                        -1,  1, -1,     1, 1, 0,
+                     
+                        -1, -1, 1,     0, 0, 1,
+                        1, -1, 1,     0, 0, 1,
+                        1,  1, 1,     0, 0, 1,
+                        -1,  1, 1,     0, 0, 1,
+                     
+                        -1, -1, -1,     0, 1, 1,
+                        -1,  1, -1,     0, 1, 1,
+                        -1,  1,  1,     0, 1, 1,
+                        -1, -1,  1,     0, 1, 1,
+                     
+                        1, -1, -1,     1, 0, 0,
+                        1,  1, -1,     1, 0, 0,
+                        1,  1,  1,     1, 0, 0,
+                        1, -1,  1,     1, 0, 0,
+                     
+                        -1, -1, -1,     1, 0, 1,
+                        -1, -1,  1,     1, 0, 1,
+                        1, -1,  1,     1, 0, 1,
+                        1, -1, -1,     1, 0, 1,
+                     
+                        -1, 1, -1,     0, 1, 0,
+                        -1, 1,  1,     0, 1, 0,
+                        1, 1,  1,     0, 1, 0,
+                        1, 1, -1,     0, 1, 0
+                      ];
                     var TRIANGLE_VERTEX = GL.createBuffer()
                     GL.bindBuffer(GL.ARRAY_BUFFER, TRIANGLE_VERTEX);
                     GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(triangle_vertex)
@@ -114,7 +145,7 @@ GL.useProgram(SHADER_PROGRAM);
 
                     //FACES (untuk memberi tahu urutan gambar harus berlawanan arah jarum jam)
                     /*var triangle_faces = [0,1,2];*/
-                    var triangle_faces = [
+                    /*var triangle_faces = [
                         0,1,2,
                         0,2,3, //2 segitiga mewakilkan 1 sisi
                         
@@ -131,7 +162,27 @@ GL.useProgram(SHADER_PROGRAM);
                         3,7,6,
                     
                         0,1,5,
-                        0,4,5];
+                        0,4,5];*/
+
+
+                         
+                         var triangle_faces = [     0, 1, 2,
+                              0, 2, 3,
+                         
+                              4, 5, 6,
+                              4, 6, 7,
+                         
+                              8, 9, 10,
+                              8, 10, 11,
+                         
+                              12, 13, 14,
+                              12, 14, 15,
+                         
+                              16, 17, 18,
+                              16, 18, 19,
+                         
+                              20, 21, 22,
+                              20, 22, 23];
                     var TRIANGLE_FACES = GL.createBuffer();
                     GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, TRIANGLE_FACES);
                     GL.bufferData(GL.ELEMENT_ARRAY_BUFFER, 
@@ -155,7 +206,16 @@ GL.useProgram(SHADER_PROGRAM);
     //for (let i = 0; i < 359; i++){}
         
     //
-    var animate = function(){
+    var time_prev = 0;
+    var animate = function(time){
+        if(time>0){
+        var dt = (time - time_prev);
+        LIBS.rotateZ(MOVEMATRIX, dt * 0.001);
+        LIBS.rotateY(MOVEMATRIX, dt * 0.003);
+        LIBS.rotateX(MOVEMATRIX, dt * 0.004); //Kalo mau lambatin bisa dikalikan seperti video, dibawah 0
+        time_prev = time
+        console.log(time); //cek di console html
+        console.log(dt)}
         GL.viewport(0,0, CANVAS.width,CANVAS.height)
         GL.clear(GL.COLOR_BUFFET_BIT | GL.D_BUFFER_BIT);
 
@@ -174,7 +234,7 @@ GL.useProgram(SHADER_PROGRAM);
                 GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, TRIANGLE_FACES);
                 GL.drawElements(GL.TRIANGLES, triangle_faces.length, GL.UNSIGNED_SHORT, 0);
     GL.flush();
-    window.requestAnimationFrame(animate);
+    window.requestAnimationFrame(animate); //berfungsi 
     };
     animate();
 //Urutannya Index ke Vertex terus ke Fragment
